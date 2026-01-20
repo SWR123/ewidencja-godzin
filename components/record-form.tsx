@@ -47,9 +47,15 @@ export function RecordForm({ initialData, isEdit = false }: RecordFormProps) {
   const [nr_domu, setNrDomu] = useState(initialData?.nr_domu || "");
   const [nr_lokalu, setNrLokalu] = useState(initialData?.nr_lokalu || "");
   const [nr_tel, setNrTel] = useState(initialData?.nr_tel || "");
-  const [godziny_do_odrobienia, setGodzinyDoOdrobienia] = useState(
-    initialData?.godziny_do_odrobienia?.toString() || ""
+  const [miesieczny_wymiar_godzin, setMiesiecznyWymiarGodzin] = useState(
+    initialData?.miesieczny_wymiar_godzin?.toString() || ""
   );
+  const [ilosc_miesiecy, setIloscMiesiecy] = useState(
+    initialData?.ilosc_miesiecy?.toString() || ""
+  );
+
+  // Calculate suma godzin wyroku
+  const sumaGodzinWyroku = (parseInt(miesieczny_wymiar_godzin) || 0) * (parseInt(ilosc_miesiecy) || 0);
 
   // Dates
   const [data1, setData1] = useState<Date | null>(
@@ -123,7 +129,8 @@ export function RecordForm({ initialData, isEdit = false }: RecordFormProps) {
       nr_domu,
       nr_lokalu,
       nr_tel,
-      godziny_do_odrobienia: godziny_do_odrobienia ? parseInt(godziny_do_odrobienia) : null,
+      miesieczny_wymiar_godzin: miesieczny_wymiar_godzin ? parseInt(miesieczny_wymiar_godzin) : null,
+      ilosc_miesiecy: ilosc_miesiecy ? parseInt(ilosc_miesiecy) : null,
       data1: data1 ? data1.toISOString() : null,
       data2: data2 ? data2.toISOString() : null,
       uwagi,
@@ -287,15 +294,15 @@ export function RecordForm({ initialData, isEdit = false }: RecordFormProps) {
             />
           </div>
           <div>
-            <Label htmlFor="godziny_do_odrobienia">Ilość godzin do odrobienia</Label>
+            <Label htmlFor="miesieczny_wymiar_godzin">Miesięczny wymiar godzin wyroku</Label>
             <Input
-              id="godziny_do_odrobienia"
+              id="miesieczny_wymiar_godzin"
               type="number"
-              value={godziny_do_odrobienia}
+              value={miesieczny_wymiar_godzin}
               onChange={(e) => {
                 const val = e.target.value;
                 if (val === "" || (parseInt(val) >= 0 && parseInt(val) <= 999)) {
-                  setGodzinyDoOdrobienia(val.slice(0, 3));
+                  setMiesiecznyWymiarGodzin(val.slice(0, 3));
                 }
               }}
               className="mt-1"
@@ -303,6 +310,30 @@ export function RecordForm({ initialData, isEdit = false }: RecordFormProps) {
               max="999"
               maxLength={3}
             />
+          </div>
+          <div>
+            <Label htmlFor="ilosc_miesiecy">Ilość miesięcy wynikająca z wyroku</Label>
+            <Input
+              id="ilosc_miesiecy"
+              type="number"
+              value={ilosc_miesiecy}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === "" || (parseInt(val) >= 0 && parseInt(val) <= 99)) {
+                  setIloscMiesiecy(val.slice(0, 2));
+                }
+              }}
+              className="mt-1"
+              min="0"
+              max="99"
+              maxLength={2}
+            />
+          </div>
+          <div>
+            <Label>Suma godzin wyroku</Label>
+            <div className="mt-1 h-10 px-3 rounded-md border border-input bg-gray-100 flex items-center font-semibold text-blue-600">
+              {sumaGodzinWyroku} h
+            </div>
           </div>
         </div>
       </div>

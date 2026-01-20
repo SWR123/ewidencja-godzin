@@ -76,7 +76,8 @@ model Record {
   nr_domu      String?
   nr_lokalu    String?
   nr_tel       String?
-  godziny_do_odrobienia Int?
+  miesieczny_wymiar_godzin Int?
+  ilosc_miesiecy Int?
   
   // Dates
   data1        DateTime?

@@ -30,7 +30,8 @@ interface Record {
   nr_domu?: string;
   nr_lokalu?: string;
   nr_tel?: string;
-  godziny_do_odrobienia?: number;
+  miesieczny_wymiar_godzin?: number;
+  ilosc_miesiecy?: number;
   data1?: string;
   data2?: string;
   uwagi?: string;
@@ -305,10 +306,10 @@ export default function RecordsPage() {
                 </th>
                 <th
                   className="px-4 py-3 text-left text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleSort("godziny_do_odrobienia")}
+                  onClick={() => handleSort("miesieczny_wymiar_godzin")}
                 >
                   <div className="flex items-center gap-2">
-                    Do odrobienia
+                    Suma wyroku
                     <ArrowUpDown className="w-4 h-4" />
                   </div>
                 </th>
@@ -357,7 +358,9 @@ export default function RecordsPage() {
                     {record?.suma}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-600">
-                    {record?.godziny_do_odrobienia || "-"}
+                    {(record?.miesieczny_wymiar_godzin && record?.ilosc_miesiecy) 
+                      ? (record.miesieczny_wymiar_godzin * record.ilosc_miesiecy) 
+                      : "-"}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-600">
                     {record?.createdAt
