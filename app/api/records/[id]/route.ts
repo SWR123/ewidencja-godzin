@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
+import { logActivity } from "@/lib/activity-logger";
 
 export const dynamic = "force-dynamic";
 
@@ -69,6 +70,15 @@ export async function PUT(
       },
     });
 
+    // Log activity
+    await logActivity(
+      session.user?.id || "unknown",
+      session.user?.name || "Nieznany",
+      session.user?.email || "unknown",
+      "Edycja rekordu",
+      `Rekord: ${rest.nazwisko} ${rest.imie}`
+    );
+
     return NextResponse.json(record);
   } catch (error) {
     console.error("Update record error:", error);
@@ -90,9 +100,23 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Get record data before deletion for logging
+    const recordToDelete = await prisma.record.findUnique({
+      where: { id: params?.id },
+    });
+
     await prisma.record.delete({
       where: { id: params?.id },
     });
+
+    // Log activity
+    await logActivity(
+      session.user?.id || "unknown",
+      session.user?.name || "Nieznany",
+      session.user?.email || "unknown",
+      "Usunięcie rekordu",
+      recordToDelete ? `Rekord: ${recordToDelete.nazwisko} ${recordToDelete.imie}` : `ID: ${params?.id}`
+    );
 
     return NextResponse.json({ success: true });
   } catch (error) {

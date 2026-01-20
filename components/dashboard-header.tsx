@@ -3,19 +3,23 @@
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Clock, LogOut, FileText, Users, Home, Database } from "lucide-react";
+import { Clock, LogOut, FileText, Users, Home, Database, ScrollText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+const ADMIN_EMAIL = "brzezinscy@yahoo.pl";
 
 export function DashboardHeader() {
   const { data: session } = useSession() || {};
   const pathname = usePathname();
+  const isAdmin = session?.user?.email === ADMIN_EMAIL;
 
   const navItems = [
     { href: "/strona-glowna", label: "Strona główna", icon: Home },
     { href: "/rekordy", label: "Rekordy", icon: FileText },
     { href: "/uzytkownicy", label: "Użytkownicy", icon: Users },
     { href: "/kopie-zapasowe", label: "Kopie zapasowe", icon: Database },
+    ...(isAdmin ? [{ href: "/logi", label: "Logi", icon: ScrollText }] : []),
   ];
 
   return (

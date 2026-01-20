@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "./db";
 import bcrypt from "bcryptjs";
+import { logActivity } from "./activity-logger";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -54,6 +55,19 @@ export const authOptions: NextAuthOptions = {
     signIn: "/logowanie",
   },
   callbacks: {
+    async signIn({ user }) {
+      // Log login activity
+      if (user?.id && user?.email) {
+        await logActivity(
+          user.id,
+          user.name || "Nieznany",
+          user.email,
+          "Logowanie",
+          "Pomyślne logowanie do systemu"
+        );
+      }
+      return true;
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;

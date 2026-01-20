@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
+import { logActivity } from "@/lib/activity-logger";
 
 export const dynamic = "force-dynamic";
 
@@ -54,6 +55,15 @@ export async function POST(req: Request) {
         suma,
       },
     });
+
+    // Log activity
+    await logActivity(
+      session.user?.id || "unknown",
+      session.user?.name || "Nieznany",
+      session.user?.email || "unknown",
+      "Utworzenie rekordu",
+      `Rekord: ${rest.nazwisko} ${rest.imie}`
+    );
 
     return NextResponse.json(record, { status: 201 });
   } catch (error) {

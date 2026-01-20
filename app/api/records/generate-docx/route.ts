@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
+import { logActivity } from "@/lib/activity-logger";
 import { 
   Document, 
   Packer, 
@@ -406,6 +407,16 @@ export async function POST(req: Request) {
     } else {
       filename = `ewidencja_${records.length}_rekordow.docx`;
     }
+
+    // Log activity
+    const names = records.map((r: any) => `${r.nazwisko} ${r.imie}`).join(", ");
+    await logActivity(
+      session.user?.id || "unknown",
+      session.user?.name || "Nieznany",
+      session.user?.email || "unknown",
+      "Generowanie dokumentu",
+      `Wygenerowano dla: ${names}`
+    );
 
     return new NextResponse(buffer, {
       headers: {

@@ -59,6 +59,19 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String
+  userName  String
+  userEmail String
+  action    String
+  details   String?
+  createdAt DateTime @default(now())
+  
+  @@index([createdAt])
+  @@index([userEmail])
+}
+
 model Record {
   id           String   @id @default(cuid())
   

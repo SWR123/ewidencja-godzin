@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
+import { logActivity } from "@/lib/activity-logger";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,12 @@ export async function POST(req: Request) {
       );
     }
 
+    // Get records before deletion for logging
+    const recordsToDelete = await prisma.record.findMany({
+      where: { id: { in: ids } },
+      select: { nazwisko: true, imie: true },
+    });
+
     await prisma.record.deleteMany({
       where: {
         id: {
@@ -30,6 +37,16 @@ export async function POST(req: Request) {
         },
       },
     });
+
+    // Log activity
+    const names = recordsToDelete.map(r => `${r.nazwisko} ${r.imie}`).join(", ");
+    await logActivity(
+      session.user?.id || "unknown",
+      session.user?.name || "Nieznany",
+      session.user?.email || "unknown",
+      "Usunięcie wielu rekordów",
+      `Usunięto ${ids.length} rekordów: ${names}`
+    );
 
     return NextResponse.json({ success: true, deletedCount: ids.length });
   } catch (error) {
